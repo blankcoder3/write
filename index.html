@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Notepad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Previous styles remain the same until toolbar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Source Serif Pro", Georgia, Cambria, "Times New Roman", Times, serif;
+            background-color: #fefeff;
+            color: #19192c;
+            min-height: 100vh;
+            padding: 2rem;
+            padding-bottom: 5rem; /* Add space for toolbar */
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.night-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .editor {
+            max-width: 800px;
+            margin: 0 auto;
+            min-height: 70vh;
+        }
+
+        #content {
+            width: 100%;
+            min-height: 70vh;
+            padding: 2rem;
+            outline: none;
+            border: none;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background: transparent;
+        }
+
+        p:first-of-type:first-letter {
+            float: left;
+            font-size: 4em;
+            padding: 0.1em 0.1em 0 0;
+            line-height: 0.65;
+            font-weight: bold;
+        }
+
+        /* Updated toolbar styles */
+        .toolbar {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 95vw;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .night-mode .toolbar {
+            background: #2a2a2a;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .toolbar button {
+            background: #f0f0f4;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .night-mode .toolbar button {
+            background: #3a3a3a;
+            color: #e0e0e0;
+        }
+
+        .toolbar button:hover {
+            background: #e0e0e4;
+        }
+
+        .night-mode .toolbar button:hover {
+            background: #4a4a4a;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            padding-right: 1rem;
+            border-right: 1px solid #eee;
+        }
+
+        .night-mode .stats {
+            color: #aaa;
+            border-right-color: #3a3a3a;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .dropdown {
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            font-family: inherit;
+            min-width: 120px;
+        }
+
+        .night-mode .dropdown {
+            background: #3a3a3a;
+            color: #e0e0e0;
+            border-color: #4a4a4a;
+        }
+
+        .line-height-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .line-height-input {
+            width: 60px;
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .night-mode .line-height-input {
+            background: #3a3a3a;
+            color: #e0e0e0;
+            border-color: #4a4a4a;
+        }
+
+        .divider {
+            width: 1px;
+            height: 24px;
+            background: #eee;
+            margin: 0 0.5rem;
+        }
+
+        .night-mode .divider {
+            background: #3a3a3a;
+        }
+
+        /* Add scrollbar styling */
+        .toolbar::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .toolbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .toolbar::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        .night-mode .toolbar::-webkit-scrollbar-thumb {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="editor">
+        <div id="content" contenteditable="true"></div>
+    </div>
+
+    <div class="toolbar">
+        <div class="stats">
+            <div id="wordCount">Words: 0</div>
+            <div id="charCount">Chars: 0</div>
+        </div>
+        
+        <select id="formatDropdown" class="dropdown">
+            <option value="p">Paragraph</option>
+            <option value="h1">Heading 1</option>
+            <option value="h2">Heading 2</option>
+            <option value="h3">Heading 3</option>
+        </select>
+
+        <div class="divider"></div>
+
+        <select id="lineHeightDropdown" class="dropdown">
+            <option value="1">Line Height: 1×</option>
+            <option value="1.6" selected>Line Height: 1.6×</option>
+            <option value="2">Line Height: 2×</option>
+            <option value="custom">Custom...</option>
+        </select>
+        
+        <input type="number" id="lineHeightInput" class="line-height-input" min="0.5" max="5" step="0.1" value="1.6" style="display: none;">
+
+        <div class="divider"></div>
+
+        <button id="nightModeBtn">Night Mode</button>
+        <button id="downloadBtn">Download</button>
+        <input type="color" id="bgColor" class="color-picker" value="#fefeff" title="Change background color">
+    </div>
+
+    <!-- Previous script remains exactly the same -->
+    <script>
+        // ... (Previous JavaScript code remains exactly the same)
+        const content = document.getElementById('content');
+        const wordCount = document.getElementById('wordCount');
+        const charCount = document.getElementById('charCount');
+        const formatDropdown = document.getElementById('formatDropdown');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const bgColor = document.getElementById('bgColor');
+        const lineHeightDropdown = document.getElementById('lineHeightDropdown');
+        const lineHeightInput = document.getElementById('lineHeightInput');
+        const nightModeBtn = document.getElementById('nightModeBtn');
+
+        // Initialize with a paragraph
+        content.innerHTML = '<p>Start writing here...</p>';
+
+        // Line height controls
+        function updateLineHeight(value) {
+            content.style.lineHeight = value;
+        }
+
+        lineHeightDropdown.addEventListener('change', () => {
+            if (lineHeightDropdown.value === 'custom') {
+                lineHeightInput.style.display = 'inline-block';
+                updateLineHeight(lineHeightInput.value);
+            } else {
+                lineHeightInput.style.display = 'none';
+                updateLineHeight(lineHeightDropdown.value);
+            }
+        });
+
+        lineHeightInput.addEventListener('input', () => {
+            updateLineHeight(lineHeightInput.value);
+        });
+
+        // Night mode toggle
+        let isNightMode = false;
+        nightModeBtn.addEventListener('click', () => {
+            isNightMode = !isNightMode;
+            document.body.classList.toggle('night-mode');
+            
+            if (isNightMode) {
+                document.body.style.backgroundColor = '#1a1a1a';
+                document.body.style.color = '#e0e0e0';
+            } else {
+                document.body.style.backgroundColor = '#fefeff';
+                document.body.style.color = '#19192c';
+            }
+        });
+
+        // Function to ensure first paragraph exists
+        function ensureFirstParagraph() {
+            if (!content.querySelector('p')) {
+                const newParagraph = document.createElement('p');
+                content.insertBefore(newParagraph, content.firstChild);
+            }
+        }
+
+        // Update word and character count
+        function updateStats() {
+            const text = content.innerText || '';
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            const chars = text.length;
+
+            wordCount.textContent = `Words: ${words.length}`;
+            charCount.textContent = `Chars: ${chars}`;
+            
+            ensureFirstParagraph();
+        }
+
+        // Format selected text
+        formatDropdown.addEventListener('change', () => {
+            const tag = formatDropdown.value;
+            document.execCommand('formatBlock', false, tag);
+        });
+
+        // Handle Enter key
+        content.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                setTimeout(() => {
+                    formatDropdown.value = 'p';
+                    document.execCommand('formatBlock', false, 'p');
+                }, 0);
+            }
+        });
+
+        // Download content
+        downloadBtn.addEventListener('click', () => {
+            const text = content.innerText;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notepad-content.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // Change background color
+        bgColor.addEventListener('input', (e) => {
+            document.body.style.backgroundColor = e.target.value;
+        });
+
+        // Update stats on content change
+        ['input', 'keyup', 'mouseup', 'paste', 'cut'].forEach(event => {
+            content.addEventListener(event, updateStats);
+        });
+
+        // Clear placeholder on first click
+        content.addEventListener('focus', function handler() {
+            if (content.innerHTML === '<p>Start writing here...</p>') {
+                content.innerHTML = '<p></p>';
+            }
+            content.removeEventListener('focus', handler);
+        });
+
+        // Create MutationObserver to ensure paragraph structure
+        const observer = new MutationObserver(() => {
+            ensureFirstParagraph();
+        });
+
+        // Start observing content changes
+        observer.observe(content, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+    </script>
+</body>
+</html>
