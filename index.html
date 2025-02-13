@@ -356,6 +356,42 @@
             subtree: true,
             characterData: true
         });
+        function updateFormatDropdown() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            let node = selection.anchorNode;
+
+            // Ensure we have an element node (not a text node)
+            while (node && node.nodeType !== 1) {
+                node = node.parentNode;
+            }
+
+            if (!node) return;
+
+            // If no block element is found, wrap the first line in a paragraph
+            if (node === content) {
+                let firstBlock = content.firstChild;
+                if (!firstBlock || firstBlock.nodeType !== 1) {
+                    document.execCommand("formatBlock", false, "p");
+                    firstBlock = content.firstChild;
+                }
+                node = firstBlock;
+            }
+
+            // Find the closest block-level element
+            const block = node.closest("p, h1, h2, h3");
+
+            if (block) {
+                formatDropdown.value = block.tagName.toLowerCase();
+            }
+        }
+
+        // Listen for cursor movement and content changes
+        content.addEventListener("keyup", updateFormatDropdown);
+        content.addEventListener("mouseup", updateFormatDropdown);
+        content.addEventListener("input", updateFormatDropdown);
+
     </script>
 </body>
 </html>
