@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,16 +21,17 @@
             color: #19192c;
             min-height: 100vh;
             padding: 2rem;
-            padding-bottom: 5rem; /* Add space for toolbar */
+            padding-bottom: 5rem;
+            /* Add space for toolbar */
             transition: background-color 0.3s, color 0.3s;
         }
 
         .material-symbols-outlined {
             font-variation-settings:
-            'FILL' 0,
-            'wght' 400,
-            'GRAD' 0,
-            'opsz' 24
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
         }
 
         body.night-mode {
@@ -44,9 +46,20 @@
         }
 
         /* Center all headings */
-        h1, h2, h3, h4, h5, h6 {
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             text-align: center;
         }
+
+        .color-picker {
+            flex-shrink: 0;
+            min-width: 30px;
+        }
+
 
 
         #content {
@@ -116,13 +129,14 @@
         }
 
         .stats {
-        font-size: 0.9rem;
-        color: #666;
-        display: flex;
-        flex-direction: column; /* Stack items vertically */
-        align-items: start;
-        padding-right: 1rem;
-        border-right: 1px solid #eee;
+            font-size: 0.9rem;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            /* Stack items vertically */
+            align-items: start;
+            padding-right: 1rem;
+            border-right: 1px solid #eee;
         }
 
         .night-mode .stats {
@@ -200,10 +214,41 @@
         .night-mode .toolbar::-webkit-scrollbar-thumb {
             background: #444;
         }
-        
 
+        /* Style for the upload button */
+        .toolbar label {
+            background: #f0f0f4;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .night-mode .toolbar label {
+            background: #3a3a3a;
+            color: #e0e0e0;
+        }
+
+        .toolbar label:hover {
+            background: #e0e0e4;
+        }
+
+        .night-mode .toolbar label:hover {
+            background: #4a4a4a;
+        }
+
+        /* Hide the actual file input */
+        #uploadFile {
+            display: none;
+        }
     </style>
 </head>
+
 <body>
     <div class="editor">
         <div id="content" contenteditable="true"></div>
@@ -214,7 +259,7 @@
             <div id="wordCount">Words: 0</div>
             <div id="charCount">Chars: 0</div>
         </div>
-        
+
         <select id="formatDropdown" class="dropdown">
             <option value="p">Para</option>
             <option value="h1">H1</option>
@@ -230,13 +275,19 @@
             <option value="2">Line Height: 2×</option>
             <option value="custom">Custom...</option>
         </select>
-        
-        <input type="number" id="lineHeightInput" class="line-height-input" min="0.5" max="5" step="0.1" value="1.6" style="display: none;">
+
+        <input type="number" id="lineHeightInput" class="line-height-input" min="0.5" max="5" step="0.1" value="1.6"
+            style="display: none;">
 
         <div class="divider"></div>
 
         <button id="nightModeBtn"><i class="fa-solid fa-circle-half-stroke"></i></button>
         <button id="downloadBtn"><i class="fa-solid fa-floppy-disk"></i></button>
+        <label for="uploadFile" class="toolbar-button">
+            <i class="fa-solid fa-upload"></i>
+        </label>
+        <input type="file" id="uploadFile" accept=".txt" style="display: none;">
+
         <input type="color" id="bgColor" class="color-picker" value="#fefeff" title="Change background color">
     </div>
 
@@ -275,12 +326,13 @@
             updateLineHeight(lineHeightInput.value);
         });
 
+
         // Night mode toggle
         let isNightMode = false;
         nightModeBtn.addEventListener('click', () => {
             isNightMode = !isNightMode;
             document.body.classList.toggle('night-mode');
-            
+
             if (isNightMode) {
                 document.body.style.backgroundColor = '#1a1a1a';
                 document.body.style.color = '#e0e0e0';
@@ -306,7 +358,7 @@
 
             wordCount.textContent = `Words: ${words.length}`;
             charCount.textContent = `Chars: ${chars}`;
-            
+
             ensureFirstParagraph();
         }
 
@@ -397,6 +449,20 @@
                 formatDropdown.value = block.tagName.toLowerCase();
             }
         }
+        //Upload file to edit
+        const uploadFile = document.getElementById('uploadFile');
+
+        uploadFile.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    content.innerText = e.target.result;
+                    updateStats();
+                };
+                reader.readAsText(file);
+            }
+        });
 
         // Listen for cursor movement and content changes
         content.addEventListener("keyup", updateFormatDropdown);
@@ -405,4 +471,5 @@
 
     </script>
 </body>
+
 </html>
