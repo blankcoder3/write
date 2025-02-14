@@ -246,12 +246,93 @@
         #uploadFile {
             display: none;
         }
+
+        /* Toc */ 
+        /* ToC Sidebar Styling */
+        .toc {
+            position: fixed;
+            top: 0;
+            right: -260px; /* Hidden initially */
+            width: 250px;
+            height: 100vh;
+            background: #fefeff;
+            color: #19192c;
+            border-left: 2px solid #eee;
+            box-shadow: -3px 0 10px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease-in-out;
+            padding: 15px;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        /* Night mode support */
+        .night-mode .toc {
+            background: #1a1a1a;
+            color: #e0e0e0;
+            border-left: 2px solid #3a3a3a;
+            box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Show sidebar when hovered near the right edge */
+        .toc.show {
+            right: 0;
+        }
+
+        /* ToC Header */
+        .toc h3 {
+            margin-top: 10px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* ToC List */
+        .toc ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc li {
+            padding: 5px 0;
+            font-size: 14px;
+        }
+
+        /* ToC Links */
+        .toc a {
+            text-decoration: none;
+            color: #19192c;
+            display: block;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+
+        /* Night mode link color */
+        .night-mode .toc a {
+            color: #e0e0e0;
+        }
+
+        /* Hover Effect */
+        .toc a:hover {
+            background: #e0e0e4;
+        }
+
+        .night-mode .toc a:hover {
+            background: #3a3a3a;
+        }
+
     </style>
 </head>
 
 <body>
     <div class="editor">
         <div id="content" contenteditable="true"></div>
+    </div>
+
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ul id="toc-list"></ul>
     </div>
 
     <div class="toolbar">
@@ -468,6 +549,38 @@
         content.addEventListener("keyup", updateFormatDropdown);
         content.addEventListener("mouseup", updateFormatDropdown);
         content.addEventListener("input", updateFormatDropdown);
+
+        // For Toc
+
+        const toc = document.querySelector(".toc");
+
+        // Show ToC when cursor nears the right edge
+        document.addEventListener("mousemove", (event) => {
+            if (event.clientX > window.innerWidth - 50) {
+                toc.classList.add("show");
+            } else if (!toc.matches(":hover")) {
+                toc.classList.remove("show");
+            }
+        });
+
+
+        function updateToC() {
+            const tocList = document.getElementById('toc-list');
+            const content = document.getElementById('content');
+            const headings = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            
+            tocList.innerHTML = ''; // Clear previous ToC
+            
+            headings.forEach((heading, index) => {
+                if (!heading.id) heading.id = 'heading-' + index; // Ensure unique IDs
+
+                let listItem = document.createElement('li');
+                listItem.innerHTML = `<a href="#${heading.id}">${heading.tagName} - ${heading.innerText}</a>`;
+                tocList.appendChild(listItem);
+            });
+        }
+
+        document.getElementById('content').addEventListener('input', updateToC);
 
     </script>
 </body>
