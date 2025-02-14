@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Notepad</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600&display=swap" rel="stylesheet">
     <style>
         /* Previous styles remain the same until toolbar */
@@ -21,6 +22,14 @@
             padding: 2rem;
             padding-bottom: 5rem; /* Add space for toolbar */
             transition: background-color 0.3s, color 0.3s;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
         }
 
         body.night-mode {
@@ -107,13 +116,13 @@
         }
 
         .stats {
-            font-size: 0.9rem;
-            color: #666;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            padding-right: 1rem;
-            border-right: 1px solid #eee;
+        font-size: 0.9rem;
+        color: #666;
+        display: flex;
+        flex-direction: column; /* Stack items vertically */
+        align-items: start;
+        padding-right: 1rem;
+        border-right: 1px solid #eee;
         }
 
         .night-mode .stats {
@@ -191,6 +200,8 @@
         .night-mode .toolbar::-webkit-scrollbar-thumb {
             background: #444;
         }
+        
+
     </style>
 </head>
 <body>
@@ -215,7 +226,7 @@
 
         <select id="lineHeightDropdown" class="dropdown">
             <option value="1">Line Height: 1×</option>
-            <option value="1.6" selected>Line Height: 1.6×</option>
+            <option value="1.6" selected>Line Hig: 1.6×</option>
             <option value="2">Line Height: 2×</option>
             <option value="custom">Custom...</option>
         </select>
@@ -224,8 +235,8 @@
 
         <div class="divider"></div>
 
-        <button id="nightModeBtn">Night Mode</button>
-        <button id="downloadBtn">Download</button>
+        <button id="nightModeBtn"><i class="fa-solid fa-circle-half-stroke"></i></button>
+        <button id="downloadBtn"><i class="fa-solid fa-floppy-disk"></i></button>
         <input type="color" id="bgColor" class="color-picker" value="#fefeff" title="Change background color">
     </div>
 
